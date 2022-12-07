@@ -13,6 +13,7 @@ nltk.download('punkt')
 import unicodedata
 from nltk.corpus import words
 correct_words = words.words()
+from torch.nn.utils.rnn import pad_sequence
 device = torch.device("cpu")
 #%%
 df = pd.read_csv("/imdb/train.csv")
@@ -59,11 +60,6 @@ def df_text_to_index(df_col):
 
 df_copy['split_word_index'] = df_copy['split_word'].apply(df_text_to_index)
 #%%
-
-# df_copy['split_word_index'].str.len().agg(['max'])
-t = torch.tensor([1,2,3,4,5,6])
-t.cumsum(dim=0)
-#%%
 class imdb_dataset(torch.utils.data.Dataset):
     def __init__(self, df):
         self.df_ds = df.copy()
@@ -80,18 +76,6 @@ class imdb_dataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.df_ds)
 #%%
-from torch.nn.utils.rnn import pad_sequence
-
-# def custom_collate(data): #(2)
-#     inputs = [torch.tensor(d['x']) for d in data] #(3)
-#     offsets = [0] + [len(entry) for entry in inputs]
-#     offsets = torch.tensor(offsets[:-1]).cumsum(dim=0)
-#     labels = [d['y'] for d in data]
-#     inputs = pad_sequence(inputs, batch_first=True) #(4)
-#     labels = torch.tensor(labels) #(5)
-    
-    
-#     return inputs, labels, offsets
 
 def custom_collate(data):
     inputs = [d['x'] for d in data]
@@ -213,15 +197,3 @@ if r.argmax(1) == 0:
 else:
     print("Dislike")
     
-#%%
-from sklearn.decomposition import LatentDirichletAllocation
-from sklearn.datasets import make_multilabel_classification
-# This produces a feature matrix of token counts, similar to what
-# CountVectorizer would produce on text.
-X, y = make_multilabel_classification(random_state=0)
-lda = LatentDirichletAllocation(n_components=6,
-    random_state=0)
-lda.fit(X)
-
-# get topics for some given samples:
-lda.transform(X[-2:])
