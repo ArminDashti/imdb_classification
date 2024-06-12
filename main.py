@@ -76,7 +76,6 @@ class imdb_dataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.df_ds)
 #%%
-
 def custom_collate(data):
     inputs = [d['x'] for d in data]
     labels = [d['y'] for d in data]
@@ -89,7 +88,7 @@ def custom_collate(data):
     return inputs, labels, offsets
 #%%
 ds = imdb_dataset(df_copy)
-dl = torch.utils.data.DataLoader(ds, batch_size=16, collate_fn=custom_collate,shuffle=False)
+dl = torch.utils.data.DataLoader(ds, batch_size=16, collate_fn=custom_collate)
 #%%
 class TextSentiment(nn.Module):
     def __init__(self, vocab_size, embed_dim, num_class):
